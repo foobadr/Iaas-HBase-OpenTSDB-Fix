@@ -1,0 +1,56 @@
+<?xml version="1.0"?>
+<metainfo>
+    <schemaVersion>2.0</schemaVersion>
+    <services>
+        <service>
+            <name>TITANDB</name>
+            <displayName>TitanDB</displayName>
+            <comment>TitanDB is a highly scalable open source graph database optimized for storing and querying graphs containing hundreds of billions of vertices and edges distributed across a multi-machine cluster.</comment>
+            <version>0.1.0</version>
+            <components>
+                <component>
+                  <name>TITANDB_SERVER</name>
+                  <displayName>TitanDB Server</displayName>
+                  <category>MASTER</category>
+                  <cardinality>1+</cardinality>
+                  <timelineAppid>TITANDB</timelineAppid>
+                  <commandScript>
+                    <script>scripts/titandb.py</script>
+                    <scriptType>PYTHON</scriptType>
+                    <timeout>5000</timeout>
+                  </commandScript>
+                </component>
+                <component>
+                  <name>TITANDB_PROXY</name>
+                  <displayName>TitanDB Load Balancer</displayName>
+                  <category>SLAVE</category>
+                  <cardinality>1+</cardinality>
+                  <timelineAppid>TITANDB</timelineAppid>
+                  <commandScript>
+                    <script>scripts/titandb_proxy.py</script>
+                    <scriptType>PYTHON</scriptType>
+                    <timeout>5000</timeout>
+                  </commandScript>
+                </component>
+            </components>
+            <osSpecifics>
+              <osSpecific>
+                <osFamily>any</osFamily>
+              </osSpecific>
+            </osSpecifics>
+            <requiredServices>
+                <service>HBASE</service>
+            </requiredServices>
+            <configuration-dependencies>
+                <config-type>titandb-site</config-type>
+                <config-type>hbase-site</config-type>
+            </configuration-dependencies>
+            <themes>
+                <theme>
+                    <fileName>theme.json</fileName>
+                    <default>true</default>
+                </theme>
+            </themes>
+        </service>
+    </services>
+</metainfo>

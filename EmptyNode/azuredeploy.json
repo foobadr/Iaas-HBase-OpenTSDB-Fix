@@ -1,0 +1,67 @@
+{
+    "$schema": "https://schema.management.azure.com/schemas/2015-01-01/deploymentTemplate.json#",
+    "contentVersion": "1.0.0.0",
+    "parameters": {
+        "clusterName": {
+            "type": "string",
+            "metadata": {
+                "description": "The name of the existing HDInsight cluster"
+            }
+        },
+        "edgeNodeSize": {
+            "type": "string",
+            "metadata": {
+                "description": "Size of the edge node that hosts the application. Use a recommedned VM size for worker nodes."
+            },
+            "defaultValue": "Standard_D3_v2",
+            "allowedValues": [
+                "Standard_D3_v2",
+                "Standard_D4_v2",
+                "Standard_D12_v2"
+            ]
+        },
+        "edgeNodePrefix": {
+            "type": "string",
+            "metadata": {
+                "description": "Edgenode prefix"
+            },
+            "defaultValue": "new"
+        }
+    },
+    "variables": {
+        "clusterApiVersion": "2015-03-01-preview",
+        "applicationName": "[concat(parameters('edgeNodePrefix'), '-', 'edgenode')]"
+    },
+    "resources": [{
+        "name": "[concat(parameters('clusterName'),'/', variables('applicationName'))]",
+        "type": "Microsoft.HDInsight/clusters/applications",
+        "apiVersion": "[variables('clusterApiVersion')]",
+        "comments" : "The script below is a copy of the script in the Iaas-Applications github repository",
+        "properties": {
+            "marketPlaceIdentifier": "EmptyNode",
+            "computeProfile": {
+                "roles": [{
+                    "name": "edgenode",
+                    "targetInstanceCount": 1,
+                    "hardwareProfile": {
+                        "vmSize": "[parameters('edgeNodeSize')]"
+                    }
+                }]
+            },
+            "installScriptActions": [{
+                "name": "[concat('emptynode','-' ,uniquestring(variables('applicationName')))]",
+                "uri": "http://hdiconfigactions.blob.core.windows.net/emptyedgenodev01/EmptyNodeSetup.sh",
+                "roles": ["edgenode"]
+            }],
+            "uninstallScriptActions": [],
+            "httpsEndpoints": [],
+            "applicationType": "CustomApplication"
+        }
+    }],
+    "outputs": {
+        "application": {
+            "type": "object",
+            "value": "[reference(resourceId('Microsoft.HDInsight/clusters/applications/',parameters('clusterName'), variables('applicationName')))]"
+        }
+    }
+}
